@@ -35,7 +35,7 @@ Every sequence is a strict permutation — no color is repeated, and all four co
 
 - The **first** placement must match `sequence[0]`.
 - After a valid transfer is confirmed, `sequenceIndex` increments to the next position.
-- The round is **complete** when `sequenceIndex` advances past the final color (i.e., after the 4th successful transfer, `sequenceIndex` reaches `4`).
+- The round is **complete** when `sequenceIndex` reaches `3`, meaning the ball has arrived at `sequence[3]` (the final color in the sequence).
 
 ---
 
