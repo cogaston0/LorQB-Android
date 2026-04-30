@@ -14,10 +14,12 @@
 ## 2. Rotation Rules
 
 - **Only one hinge (pivot) may be active at any given moment.** Concurrent rotations are not permitted.
-- Rotation advances in discrete steps only: `0° → 90° → 180° → 270° → (wrap back to 0°)`.
-- All rotations are **snap rotations** — the group jumps instantly to the next step value. No interpolation, easing, or physics-based movement is used.
-- A rotation step is triggered by a discrete input event (e.g., tap/button press). One event = one 90° step.
+- Only two rotation ranges are valid: `0° → 90°` and `0° → 180°`. No other target angle is permitted.
+- **270° rotation is not allowed under any circumstance.**
+- Rotation validation must occur **before** any movement begins. If the requested target angle is not `90°` or `180°`, the rotation is rejected and no transform change takes place.
+- All rotations are **snap rotations** — the group jumps instantly to the target value. No interpolation, easing, or physics-based movement is used.
 - Intermediate angles (e.g., 45°, 135°) are never valid states.
+- No physics, no Rigidbody, and no collision-based blocking are used to enforce limits. **Scripted limits only.**
 
 ---
 
@@ -52,15 +54,34 @@
 
 ---
 
+## 6. Frame Timing
+
+Each color-to-color move constitutes one rotation iteration and costs exactly **240 frames**.
+
+| Move                  | Duration   |
+|-----------------------|------------|
+| C12 Blue → Red        | 240 frames |
+| C13 Red → Green       | 240 frames |
+| C14 Green → Yellow    | 240 frames |
+| C15 Yellow → Blue     | 240 frames |
+
+- The 240-frame value is the authoritative unit for sequencing and logic. Unity will convert this to a wall-clock duration separately; the frame count must be preserved in all planning and scripted logic.
+- One color-to-color move = one 240-frame iteration, regardless of the rotation angle used (90° or 180°).
+
+---
+
 ## Summary of Constraints
 
-| Rule                        | Constraint                                      |
-|-----------------------------|-------------------------------------------------|
-| Active hinges at once       | Maximum 1                                       |
-| Valid rotation angles       | 0°, 90°, 180°, 270° only                        |
-| Rotation type               | Snap (instant), no smooth or physics motion     |
-| Cube detachment             | Not allowed under any condition                 |
-| Non-active pivot transforms | Immutable (fully locked)                        |
-| Rigidbody / Physics         | Not used                                        |
-| Parenting tricks            | Not used                                        |
-| End state requirement       | All groups at 0° (canonical orientation)        |
+| Rule                        | Constraint                                              |
+|-----------------------------|---------------------------------------------------------|
+| Active hinges at once       | Maximum 1                                               |
+| Valid rotation angles       | 90° or 180° only (from 0°); 270° is not allowed         |
+| Rotation validation         | Occurs before movement; invalid angles are rejected     |
+| Rotation type               | Snap (instant), no smooth or physics motion             |
+| Limit enforcement           | Scripted limits only — no physics, Rigidbody, or collision |
+| Frame timing per move       | 240 frames per color-to-color move                      |
+| Cube detachment             | Not allowed under any condition                         |
+| Non-active pivot transforms | Immutable (fully locked)                                |
+| Rigidbody / Physics         | Not used                                                |
+| Parenting tricks            | Not used                                                |
+| End state requirement       | All groups at 0° (canonical orientation)                |
