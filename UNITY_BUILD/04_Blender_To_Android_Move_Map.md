@@ -34,13 +34,15 @@ There are exactly **three** hinges in the Level 1 model. There is no fourth hing
 
 ---
 
-## Blender Frame Convention
+## Android Frame Convention
+
+All moves are normalized to **240 frames** (frames 1–240 relative). Do not use absolute Blender timeline positions (e.g. 241–480, 481–720, 720–960) — those are sequential Blender playback offsets and are not used on Android.
 
 | Parameter | Value |
 |-----------|-------|
 | C-series angle sequence | 0° → 90° → 180° → 90° → 0° (peak at midframe, return to start) |
-| C-series frame window per move | 240 frames |
-| C-series transfer | Fires between the two frames at the 180° peak |
+| C-series frame window | 1–240 (all C moves share the same normalized range) |
+| C-series transfer | Frame 120 → 121 (fires at the 180° peak for every C move) |
 | T-series forward move | Frames 1–160 (two stages, 80 frames each) |
 | T-series transfer | Frame 161 |
 | T-series return | Frames 162–240 |
@@ -84,11 +86,11 @@ Each C-series move activates one hinge, sweeps the rotating group 0° → 90° �
 | **Blender rotation axis** | Y |
 | **Moving cube / group** | `Cube_Green` |
 | **Angle sequence** | 0° → 90° → 180° → 90° → 0° |
-| **Frame range** | Frames 241–480 |
-| **Transfer frame** | Frame 360 → 361 (ball snaps at 180° peak) |
+| **Frame range** | Frames 1–240 |
+| **Transfer frame** | Frame 120 → 121 (ball snaps at 180° peak) |
 | **Seat source** | `Seat_Red` (+1.0, +0.5, +1.0) |
 | **Seat destination** | `Seat_Green` (−1.0, +0.5, +1.0) |
-| **Return order** | After transfer: hinge returns 180° → 90° → 0° (frames 361–480) |
+| **Return order** | After transfer: hinge returns 180° → 90° → 0° (frames 121–240) |
 | **Android implementation note** | `HoleAlignmentDetector` on `Hinge_Red_Green`. Blender axis Y maps to Unity `Vector3.up`; confirm `rotationAxis` field on `CubeRotationController` for Cube_Green is set correctly when mapping from Blender. |
 
 ---
@@ -104,11 +106,11 @@ Each C-series move activates one hinge, sweeps the rotating group 0° → 90° �
 | **Blender rotation axis** | X |
 | **Moving cube / group** | `Cube_Yellow` |
 | **Angle sequence** | 0° → 90° → 180° → 90° → 0° |
-| **Frame range** | Frames 481–720 |
-| **Transfer frame** | Frame 600 → 601 (ball snaps at 180° peak) |
+| **Frame range** | Frames 1–240 |
+| **Transfer frame** | Frame 120 → 121 (ball snaps at 180° peak) |
 | **Seat source** | `Seat_Green` (−1.0, +0.5, +1.0) |
 | **Seat destination** | `Seat_Yellow` (−1.0, +0.5, −1.0) |
-| **Return order** | After transfer: hinge returns 180° → 90° → 0° (frames 601–720) |
+| **Return order** | After transfer: hinge returns 180° → 90° → 0° (frames 121–240) |
 | **Android implementation note** | `HoleAlignmentDetector` on `Hinge_Green_Yellow`. Same axis type as HBR (X-axis in Blender). |
 
 ---
@@ -124,11 +126,11 @@ Each C-series move activates one hinge, sweeps the rotating group 0° → 90° �
 | **Blender rotation axis** | Y |
 | **Moving cube / group** | Cube_Green + Cube_Yellow swing together as one unit toward Cube_Blue + Cube_Red |
 | **Angle sequence** | 0° → 90° → 180° → 90° → 0° |
-| **Frame range** | Frames 720–960 |
-| **Transfer frame** | Frame 840 → 841 (ball snaps at 180° peak) |
+| **Frame range** | Frames 1–240 |
+| **Transfer frame** | Frame 120 → 121 (ball snaps at 180° peak) |
 | **Seat source** | `Seat_Yellow` (−1.0, +0.5, −1.0) |
 | **Seat destination** | `Seat_Blue` (+1.0, +0.5, −1.0) |
-| **Return order** | After transfer: HRG returns 180° → 90° → 0° (frames 841–960) |
+| **Return order** | After transfer: HRG returns 180° → 90° → 0° (frames 121–240) |
 | **Android implementation note** | C15 reuses HRG — there is no fourth hinge. The entire Green+Yellow side rotates as a rigid unit around `Pivot_Red_Green`. `BallTransferController` snaps ball from `Seat_Yellow.position` to `Seat_Blue.position` when HRG reaches 180° alignment. |
 
 ---
@@ -219,9 +221,9 @@ Ball transfer at frame 161 is atomic (seat-to-seat, no interpolation in Level 1)
 | Code | Series | Source | Destination | Stage 1 Hinge | Stage 2 Hinge | Transfer Frame | Confirmed |
 |------|--------|--------|-------------|---------------|---------------|----------------|-----------|
 | C12  | C | Blue   | Red    | HBR (180° peak) | —           | 120 → 121 | ✅ |
-| C13  | C | Red    | Green  | HRG (180° peak) | —           | 360 → 361 | ✅ |
-| C14  | C | Green  | Yellow | HGY (180° peak) | —           | 600 → 601 | ✅ |
-| C15  | C | Yellow | Blue   | HRG (180° peak) | —           | 840 → 841 | ✅ |
+| C13  | C | Red    | Green  | HRG (180° peak) | —           | 120 → 121 | ✅ |
+| C14  | C | Green  | Yellow | HGY (180° peak) | —           | 120 → 121 | ✅ |
+| C15  | C | Yellow | Blue   | HRG (180° peak) | —           | 120 → 121 | ✅ |
 | T01  | T | Blue   | Green  | HBR 180° (fr 1–80) | HRG 90° (fr 81–160) | 161 | ✅ |
 | T02  | T | Yellow | Red    | HGY 180° (fr 1–80) | HRG 90° (fr 81–160) | 161 | ✅ |
 | T03  | T | Red    | Yellow | HGY 180° (fr 1–80) | Red 90° + HRG 90° (fr 81–160) | 161 | ✅ |
