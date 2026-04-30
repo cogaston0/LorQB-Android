@@ -78,11 +78,29 @@ State 3:   Cube_Yellow at 270° — holes facing −Z / +Z
 
 ---
 
-### C15 — Yellow ↔ Blue (Reserved / Level 2+)
+### C15 — Yellow ↔ Blue (`Pivot_Yellow_Blue`)
 
-> **Note:** C15 represents the fourth hinge closing the chain into a loop (Yellow back to Blue). This connection is **not present in the Level 1 scene hierarchy** and is reserved for Level 2 or a ring-layout variant. The rotation axis would be X-axis (`Vector3.right`) at the front top edge (X=0.00, Y=+0.51, Z=+0.51).
->
-> No C15 hinge object exists in the Level 1 build. Do not wire or script C15 in Level 1.
+C15 is the **closing hinge** of the Level 1 color cycle. It connects Cube_Yellow back to Cube_Blue, completing the ring: Blue → Red → Green → Yellow → Blue.
+
+| Property         | Value                                                        |
+|------------------|--------------------------------------------------------------|
+| Pivot position   | (X=0.00, Y=+0.51, Z=+0.51) — front top edge, X midpoint    |
+| Rotation axis    | X-axis (`Vector3.right`)                                     |
+| Rotatable cube   | Cube_Yellow (Blue is the anchor, never rotates)              |
+| Discrete steps   | 0° → 90° → 180° → 270° → 0° (wrapping)                     |
+| Positive (+) dir | Cube_Yellow opens away from Cube_Blue (lid-open, front)     |
+| Negative (−) dir | Cube_Yellow closes back toward Cube_Blue                     |
+
+**Rotation sequence (C15):**
+
+```
+State 0:   Cube_Yellow at   0° — holes facing +X / −X (default aligned with Blue)
+State 1:   Cube_Yellow at  90° — holes facing +Y / −Y
+State 2:   Cube_Yellow at 180° — holes facing −X / +X (anti-aligned with Blue)
+State 3:   Cube_Yellow at 270° — holes facing −Y / +Y
+```
+
+> **Scene hierarchy note:** `Pivot_Yellow_Blue`, `Hinge_Yellow_Blue`, and `RotationGroup_Yellow_Blue` must be present in the Level 1 scene alongside C12–C14. Cube_Yellow's `CubeRotationController` handles both its C14 (Green-side) and C15 (Blue-side) hole alignment checks; its world-space rotation angle is shared across both adjacent hinges.
 
 ---
 
@@ -121,7 +139,7 @@ The ball exists at **exactly one** `Seat_<Color>` transform at all times. Transf
 12. If shuffleIndex == totalCubes → fire OnLevelComplete
 ```
 
-### Transfer table (Level 1 sequential-only):
+### Transfer table (Level 1 — all four hinges, closed ring):
 
 | Active hinge | Ball moves from | Ball moves to   | Condition        |
 |--------------|-----------------|-----------------|------------------|
@@ -131,6 +149,8 @@ The ball exists at **exactly one** `Seat_<Color>` transform at all times. Transf
 | C13          | Seat_Green      | Seat_Red        | Holes aligned    |
 | C14          | Seat_Green      | Seat_Yellow     | Holes aligned    |
 | C14          | Seat_Yellow     | Seat_Green      | Holes aligned    |
+| C15          | Seat_Yellow     | Seat_Blue       | Holes aligned    |
+| C15          | Seat_Blue       | Seat_Yellow     | Holes aligned    |
 
 > **Level 1 constraint:** Only adjacent transfers are valid. The shuffle order may be non-linear (e.g., Blue → Green), but the ball still physically travels step-by-step through intermediate cubes. The `BallTransferController` permits transfer only to cubes directly adjacent to the current cube via an aligned hinge, regardless of the shuffle order target.
 
