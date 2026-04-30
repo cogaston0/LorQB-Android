@@ -101,14 +101,16 @@ namespace LorQB.UI
         // ── Button handlers ───────────────────────────────────────────────────────
         private void OnRotateLeft()
         {
-            if (_activeController == null || !gameManager.IsInputAllowed) return;
+            if (_activeController == null) return;
+            if (gameManager != null && !gameManager.IsInputAllowed) return;
             _activeController.RotateBackward();
             SetButtonsEnabled(false);
         }
 
         private void OnRotateRight()
         {
-            if (_activeController == null || !gameManager.IsInputAllowed) return;
+            if (_activeController == null) return;
+            if (gameManager != null && !gameManager.IsInputAllowed) return;
             _activeController.RotateForward();
             SetButtonsEnabled(false);
         }

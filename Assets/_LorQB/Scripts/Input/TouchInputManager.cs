@@ -51,7 +51,15 @@ namespace LorQB.Input
         public void UnblockInput() => _inputBlocked = false;
         public bool IsInputBlocked => _inputBlocked;
 
+        // ── Cached references ─────────────────────────────────────────────────────
+        private Camera _mainCamera;
+
         // ── Unity lifecycle ──────────────────────────────────────────────────────
+        private void Awake()
+        {
+            _mainCamera = Camera.main;
+        }
+
         private void Update()
         {
 #if UNITY_EDITOR
@@ -162,9 +170,10 @@ namespace LorQB.Input
         /// <summary>Raycast from screen position into the scene and return a CubeIdentifier if hit.</summary>
         private CubeIdentifier RaycastCube(Vector2 screenPos)
         {
-            if (Camera.main == null) return null;
+            if (_mainCamera == null) _mainCamera = Camera.main;
+            if (_mainCamera == null) return null;
 
-            Ray ray = Camera.main.ScreenPointToRay(screenPos);
+            Ray ray = _mainCamera.ScreenPointToRay(screenPos);
             if (Physics.Raycast(ray, out RaycastHit hit, Mathf.Infinity, cubeLayer))
                 return hit.collider.GetComponentInParent<CubeIdentifier>();
 

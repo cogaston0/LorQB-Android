@@ -12,6 +12,9 @@ namespace LorQB.Movement
     /// </summary>
     public class CubeRotationController : MonoBehaviour
     {
+        // ── Constants ────────────────────────────────────────────────────────────
+        private const float RotationIncrement = 90f;
+
         // ── Inspector ────────────────────────────────────────────────────────────
         [Header("Hinge Setup")]
         [Tooltip("The Pivot_[ColorA]_[ColorB] Transform that acts as the rotation centre.")]
@@ -71,10 +74,10 @@ namespace LorQB.Movement
         }
 
         /// <summary>Rotate clockwise by 90 degrees (from the player's perspective).</summary>
-        public void RotateForward()  => RotateTo(_currentAngle + 90f);
+        public void RotateForward()  => RotateTo(_currentAngle + RotationIncrement);
 
         /// <summary>Rotate counter-clockwise by 90 degrees.</summary>
-        public void RotateBackward() => RotateTo(_currentAngle - 90f);
+        public void RotateBackward() => RotateTo(_currentAngle - RotationIncrement);
 
         /// <summary>Toggle the rotation lock on this cube (long-press mechanic).</summary>
         public void ToggleLock() => _isLocked = !_isLocked;
