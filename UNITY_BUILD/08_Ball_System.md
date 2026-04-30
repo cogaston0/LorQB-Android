@@ -19,12 +19,14 @@ The ball is the single interactive object the player moves through the four cube
 
 ## 2. Seat System
 
-Each cube has exactly one Seat — a named empty `GameObject` positioned at the top-centre of the cube (Y = +0.5 above the cube centre).
+Each cube has exactly one Seat — a named empty `GameObject` positioned at the top-centre of the cube (Y = +0.5 above the cube centre in local space).
 
-### Seat world positions
+**Critical:** Each `Seat_<Color>` is a **child of its cube** (or of the cube's active rotation group). This means the Seat moves in world space whenever its cube is rotated. The ball tracks the Seat in world space at all times, so it moves with the cube during active rotation.
 
-| Seat | Cube | X | Y | Z |
-|------|------|-----|------|-----|
+### Seat default world positions (rotation = 0°)
+
+| Seat | Parent | X | Y | Z |
+|------|--------|-----|------|-----|
 | Seat_Blue | Cube_Blue | +1.0 | +0.5 | −1.0 |
 | Seat_Red | Cube_Red | +1.0 | +0.5 | +1.0 |
 | Seat_Green | Cube_Green | −1.0 | +0.5 | +1.0 |
@@ -32,20 +34,26 @@ Each cube has exactly one Seat — a named empty `GameObject` positioned at the 
 
 ### Scene hierarchy
 
-Seats live under the `Seats` group at the Level1 root:
+Each Seat is a direct child of its cube so it inherits the cube's rotation:
 
 ```
 Level1
-└── Seats
-    ├── Seat_Blue    (+1.0, +0.5, −1.0)
-    ├── Seat_Red     (+1.0, +0.5, +1.0)
-    ├── Seat_Green   (−1.0, +0.5, +1.0)
-    └── Seat_Yellow  (−1.0, +0.5, −1.0)
+└── Cubes
+    ├── Cube_Blue
+    │   └── Seat_Blue      (local: 0, +0.5, 0)
+    ├── Cube_Red
+    │   └── Seat_Red       (local: 0, +0.5, 0)
+    ├── Cube_Green
+    │   └── Seat_Green     (local: 0, +0.5, 0)
+    └── Cube_Yellow
+        └── Seat_Yellow    (local: 0, +0.5, 0)
 ```
+
+When a cube is part of a `RotationGroup`, its `Seat_<Color>` child rotates with the group, keeping the ball visually inside the cube throughout the rotation.
 
 ### Seat wiring
 
-Each `CubeIdentifier` component holds a serialized reference to its matching `Seat_<Color>` Transform. `BallTransferController` looks up `seatTransforms[colorIndex]` to determine where to snap the ball on transfer.
+Each `CubeIdentifier` component holds a serialized reference to its matching `Seat_<Color>` Transform. `BallTransferController` looks up the seat's **current world position** to track or snap the ball.
 
 ---
 
@@ -113,7 +121,24 @@ Transfer direction is determined by which cube currently holds the ball and whic
 
 ## 6. Ball During Cube Rotation
 
-When a cube rotates, the ball does **not** move with it. Seats are in the `Seats` group at the Level1 root — they are **not children** of any cube. Ball position is fixed in world space at the current seat throughout all rotation. The ball only moves when a transfer is executed.
+While the player holds/drags a cube, the ball **follows the current Seat in world space**. Because the Seat is a child of the cube (or its rotation group), it moves as the cube rotates. The ball tracks `currentSeat.position` every frame, keeping it visually inside the current cube throughout the drag.
+
+| Phase | Ball behaviour |
+|-------|---------------|
+| Player begins drag / hold | Ball remains at `currentSeat.position`; Seat starts moving as the cube rotates |
+| Active rotation (finger held) | Ball position is updated to `currentSeat.position` each frame — ball follows the cube |
+| No transfer during hold | Transfer is **blocked** while the player is actively holding/rotating; the ball cannot jump mid-drag |
+| Player releases finger | System evaluates hole alignment |
+| Release — valid alignment | Ball snaps to `destinationSeat.position` (transfer executes) |
+| Release — invalid alignment | Ball remains at `currentSeat.position` (no transfer; ball stays in current cube) |
+
+### Summary
+
+1. Ball follows the current Seat during cube rotation.
+2. The current Seat is attached to the cube (or rotation group) that owns the ball, so it moves with it.
+3. Ball remains visually inside the current cube during active touch/drag.
+4. On release, if alignment is valid, ball snaps to the destination Seat.
+5. On release, if alignment is invalid, ball remains in the current cube at the current Seat.
 
 ---
 
@@ -122,10 +147,12 @@ When a cube rotates, the ball does **not** move with it. Seats are in the `Seats
 The following must always be true at runtime:
 
 - `Ball` has no `Rigidbody`
-- `ball.position` equals exactly one `Seat_<Color>.position`
+- `ball.position` always equals `currentSeat.position` (tracked every frame)
+- The current Seat moves with its cube during rotation; the ball therefore moves with the cube
 - `ball.velocity` does not exist (no Rigidbody)
 - `ball.rotation` is not programmatically changed (orientation is irrelevant)
 - No physics forces or impulses are ever applied to the ball
+- Transfer is blocked while the player is actively holding/rotating; ball stays in the current cube until release
 
 ---
 
