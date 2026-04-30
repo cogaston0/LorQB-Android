@@ -14,7 +14,8 @@
 ## 2. Rotation Rules
 
 - **Only one hinge (pivot) may be active at any given moment.** Concurrent rotations are not permitted.
-- Only two rotation ranges are valid: `0° → 90°` and `0° → 180°`. No other target angle is permitted.
+- Every hinge follows the fixed movement cycle: `0° → 90° → 180° → 90° → 0°`. This constitutes one full movement cycle.
+- Only two rotation ranges are valid within that cycle: `0° → 90°` and `0° → 180°`. No other target angle is permitted.
 - **270° rotation is not allowed under any circumstance.**
 - Rotation validation must occur **before** any movement begins. If the requested target angle is not `90°` or `180°`, the rotation is rejected and no transform change takes place.
 - All rotations are **snap rotations** — the group jumps instantly to the target value. No interpolation, easing, or physics-based movement is used.
@@ -56,7 +57,29 @@
 
 ## 6. Frame Timing
 
-Each color-to-color move constitutes one rotation iteration and costs exactly **240 frames**.
+### Rotation Cycle
+
+Each hinge executes exactly one rotation cycle per color-to-color move:
+
+```
+0° → 90° → 180° → 90° → 0°
+```
+
+This full cycle costs **240 frames** in total.
+
+### Frame Breakdown (per cycle)
+
+| Leg                  | Angle Change      | Frames |
+|----------------------|-------------------|--------|
+| Leg 1: outward start | 0° → 90°          | 60     |
+| Leg 2: outward peak  | 90° → 180°        | 60     |
+| Leg 3: return start  | 180° → 90°        | 60     |
+| Leg 4: return finish | 90° → 0°          | 60     |
+| **Total**            |                   | **240**|
+
+### Color-to-Color Move Timing
+
+Each color-to-color move = one rotation cycle = 240 frames.
 
 | Move                  | Duration   |
 |-----------------------|------------|
@@ -66,7 +89,7 @@ Each color-to-color move constitutes one rotation iteration and costs exactly **
 | C15 Yellow → Blue     | 240 frames |
 
 - The 240-frame value is the authoritative unit for sequencing and logic. Unity will convert this to a wall-clock duration separately; the frame count must be preserved in all planning and scripted logic.
-- One color-to-color move = one 240-frame iteration, regardless of the rotation angle used (90° or 180°).
+- One color-to-color move = one complete `0° → 90° → 180° → 90° → 0°` cycle = 240 frames.
 
 ---
 
@@ -76,9 +99,11 @@ Each color-to-color move constitutes one rotation iteration and costs exactly **
 |-----------------------------|---------------------------------------------------------|
 | Active hinges at once       | Maximum 1                                               |
 | Valid rotation angles       | 90° or 180° only (from 0°); 270° is not allowed         |
+| Rotation cycle per move     | 0° → 90° → 180° → 90° → 0°                             |
 | Rotation validation         | Occurs before movement; invalid angles are rejected     |
 | Rotation type               | Snap (instant), no smooth or physics motion             |
 | Limit enforcement           | Scripted limits only — no physics, Rigidbody, or collision |
+| Frame timing per cycle      | 240 frames total (4 legs × 60 frames each)              |
 | Frame timing per move       | 240 frames per color-to-color move                      |
 | Cube detachment             | Not allowed under any condition                         |
 | Non-active pivot transforms | Immutable (fully locked)                                |
