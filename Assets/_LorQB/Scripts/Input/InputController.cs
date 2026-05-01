@@ -101,7 +101,7 @@ namespace LorQB.Input
         // ── Input core ────────────────────────────────────────────────────────────
         private void OnPress(Vector2 screenPos)
         {
-            if (!IsActivPlay()) return;
+            if (!IsActivePlay()) return;
 
             _pressedCube   = RaycastCube(screenPos);
             _pressStartPos = screenPos;
@@ -163,7 +163,7 @@ namespace LorQB.Input
             return null;
         }
 
-        private static bool IsActivPlay()
+        private static bool IsActivePlay()
         {
             GameStateManager gsm = GameStateManager.Instance;
             return gsm != null && gsm.GetState() == GameStateManager.GameState.ACTIVE_PLAY;
