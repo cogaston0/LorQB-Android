@@ -56,6 +56,11 @@ namespace LorQB.Core
         /// </summary>
         public void SetState(GameState newState)
         {
+            if (_currentState == newState)
+            {
+                return;
+            }
+
             if (!IsTransitionAllowed(_currentState, newState))
             {
                 Debug.LogWarning(
