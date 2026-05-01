@@ -41,6 +41,7 @@ namespace LorQB.Core
             sequenceManager.GenerateSequence();
             Debug.Log("[GameManager] Sequence generated.");
 
+            ballTransfer.SetSequenceManager(sequenceManager);
             validation.Initialise(sequenceManager, ballTransfer);
             inputController.Initialise(validation);
 
