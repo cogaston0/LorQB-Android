@@ -102,9 +102,84 @@ namespace LorQB.Movement
         }
 
         /// <summary>
+        /// Validates and executes a ball transfer from one cube color to another.
+        /// Must be called while GameState == VALIDATION. On success, transitions the
+        /// state machine: VALIDATION → TRANSFER → POST_TRANSFER (→ ROUND_COMPLETE
+        /// when the sequence is exhausted).
+        /// </summary>
+        /// <param name="from">The color the ball is currently on.</param>
+        /// <param name="to">The color to transfer the ball to.</param>
+        /// <returns>True if the transfer was performed; false otherwise.</returns>
+        public bool TryTransfer(CubeColor from, CubeColor to)
+        {
+            GameStateManager gsm = GameStateManager.Instance;
+
+            if (gsm == null)
+            {
+                Debug.LogWarning("[BallTransferController] TryTransfer: GameStateManager.Instance is null.");
+                return false;
+            }
+
+            if (gsm.GetState() != GameStateManager.GameState.VALIDATION)
+            {
+                Debug.LogWarning($"[BallTransferController] TryTransfer: GameState is {gsm.GetState()}, expected VALIDATION.");
+                return false;
+            }
+
+            if (_sequenceManager == null)
+            {
+                Debug.LogWarning("[BallTransferController] TryTransfer: _sequenceManager is null.");
+                return false;
+            }
+
+            if (!_sequenceManager.HasNextColor())
+            {
+                Debug.LogWarning("[BallTransferController] TryTransfer: no next color in sequence.");
+                return false;
+            }
+
+            if (from != _sequenceManager.GetCurrentColor())
+            {
+                Debug.LogWarning($"[BallTransferController] TryTransfer: 'from' color {from} does not match current sequence color {_sequenceManager.GetCurrentColor()}.");
+                return false;
+            }
+
+            if (to != _sequenceManager.GetNextColor())
+            {
+                Debug.LogWarning($"[BallTransferController] TryTransfer: 'to' color {to} does not match next sequence color {_sequenceManager.GetNextColor()}.");
+                return false;
+            }
+
+            if (!_seatMap.ContainsKey(to))
+            {
+                Debug.LogWarning($"[BallTransferController] TryTransfer: _seatMap does not contain an entry for target color {to}.");
+                return false;
+            }
+
+            // All checks passed — execute the transfer.
+            gsm.SetState(GameStateManager.GameState.TRANSFER);
+
+            ballTransform.position = _seatMap[to].position;
+            _sequenceManager.AdvanceSequence();
+            _currentStepIndex++;
+            OnBallTransferred?.Invoke(_currentStepIndex);
+
+            gsm.SetState(GameStateManager.GameState.POST_TRANSFER);
+
+            if (!_sequenceManager.HasNextColor())
+            {
+                OnLevelComplete?.Invoke();
+                gsm.SetState(GameStateManager.GameState.ROUND_COMPLETE);
+            }
+
+            return true;
+        }
+
+        /// <summary>
         /// Returns true when a transfer is currently permitted.
         /// All conditions must hold: GameState == TRANSFER, sequence has a next step,
-        /// ball is not already transferring, and holes are aligned.
+        /// ball is not already transferring, seats exist for both current and next colors,
+        /// and holes are aligned.
         /// </summary>
         public bool CanTransfer()
         {
@@ -117,8 +192,30 @@ namespace LorQB.Movement
             if (gsm == null) return false;
             if (gsm.GetState() != GameStateManager.GameState.TRANSFER) return false;
 
+            // Require seats for both current and next color.
+            CubeColor currentColor = _sequenceManager.GetCurrentColor();
+            CubeColor nextColor    = _sequenceManager.GetNextColor();
+
+            if (!_seatMap.ContainsKey(currentColor))
+            {
+                Debug.LogWarning($"[BallTransferController] CanTransfer: _seatMap missing entry for current color {currentColor}.");
+                return false;
+            }
+
+            if (!_seatMap.ContainsKey(nextColor))
+            {
+                Debug.LogWarning($"[BallTransferController] CanTransfer: _seatMap missing entry for target color {nextColor}.");
+                return false;
+            }
+
             HoleAlignmentDetector detector = GetDetectorForCurrentPair();
-            if (detector != null && !detector.AreHolesAligned()) return false;
+            if (detector == null)
+            {
+                Debug.LogWarning($"[BallTransferController] CanTransfer: no HoleAlignmentDetector for step {_currentStepIndex}.");
+                return false;
+            }
+
+            if (!detector.AreHolesAligned()) return false;
 
             return true;
         }
@@ -178,6 +275,10 @@ namespace LorQB.Movement
             if (_seatMap.TryGetValue(color, out Transform seat))
             {
                 ballTransform.position = seat.position;
+            }
+            else
+            {
+                Debug.LogWarning($"[BallTransferController] SnapBallToCurrentSeat: _seatMap missing entry for color {color}.");
             }
         }
 
