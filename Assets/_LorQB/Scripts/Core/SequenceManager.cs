@@ -58,13 +58,26 @@ namespace LorQB.Core
         }
 
         /// <summary>
-        /// Returns the color at the next sequence index, or the current color if
-        /// the index is already at the maximum (3).
+        /// Returns true if there is a next color (sequenceIndex is not yet at the final index).
+        /// </summary>
+        public bool HasNextColor()
+        {
+            return sequenceIndex < MaxIndex;
+        }
+
+        /// <summary>
+        /// Returns the color at the next sequence index.
+        /// Returns the final color and logs a warning if already at the final index.
         /// </summary>
         public CubeColor GetNextColor()
         {
-            int nextIndex = Mathf.Min(sequenceIndex + 1, MaxIndex);
-            return sequence[nextIndex];
+            if (!HasNextColor())
+            {
+                Debug.LogWarning("[SequenceManager] No next color (at final index)");
+                return sequence[MaxIndex];
+            }
+
+            return sequence[sequenceIndex + 1];
         }
 
         /// <summary>
@@ -74,14 +87,12 @@ namespace LorQB.Core
         {
             if (sequenceIndex >= MaxIndex)
             {
-                Debug.LogWarning(
-                    "[SequenceManager] AdvanceSequence called at max index (3); ignoring.");
+                Debug.LogWarning("[SequenceManager] Already at final index");
                 return;
             }
 
             sequenceIndex++;
-            Debug.Log($"[SequenceManager] Index advanced to {sequenceIndex} " +
-                      $"(color: {sequence[sequenceIndex]})");
+            Debug.Log($"[SequenceManager] Advanced to index {sequenceIndex}");
         }
 
         /// <summary>
