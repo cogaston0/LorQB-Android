@@ -11,14 +11,19 @@ namespace LorQB.Core
     /// Attach to the GameManager GameObject alongside BallTransferController,
     /// ValidationController, InputController, and RotationController.
     /// </summary>
+    [RequireComponent(typeof(BallTransferController))]
+    [RequireComponent(typeof(ValidationController))]
+    [RequireComponent(typeof(InputController))]
+    [RequireComponent(typeof(RotationController))]
     public class GameManager : MonoBehaviour
     {
         // ── Fields ────────────────────────────────────────────────────────────────
-        private SequenceManager       sequenceManager;
+        private SequenceManager        sequenceManager;
         private BallTransferController ballTransfer;
-        private ValidationController  validation;
-        private InputController       inputController;
-        private RotationController    rotationController;
+        private ValidationController   validation;
+        private InputController        inputController;
+        private RotationController     rotationController; // reserved for rotation-gate wiring
+        private GameStateManager       _gsm;
 
         // ── Unity lifecycle ──────────────────────────────────────────────────────
         private void Awake()
@@ -28,6 +33,7 @@ namespace LorQB.Core
             validation         = GetComponent<ValidationController>();
             inputController    = GetComponent<InputController>();
             rotationController = GetComponent<RotationController>();
+            _gsm               = GameStateManager.Instance;
         }
 
         private void Start()
@@ -38,10 +44,10 @@ namespace LorQB.Core
             validation.Initialise(sequenceManager, ballTransfer);
             inputController.Initialise(validation);
 
-            if (GameStateManager.Instance != null)
+            if (_gsm != null)
             {
-                GameStateManager.Instance.OnStateChanged += OnStateChanged;
-                GameStateManager.Instance.SetState(GameStateManager.GameState.BALL_SELECTION);
+                _gsm.OnStateChanged += OnStateChanged;
+                _gsm.SetState(GameStateManager.GameState.BALL_SELECTION);
             }
             else
             {
@@ -51,8 +57,8 @@ namespace LorQB.Core
 
         private void OnDestroy()
         {
-            if (GameStateManager.Instance != null)
-                GameStateManager.Instance.OnStateChanged -= OnStateChanged;
+            if (_gsm != null)
+                _gsm.OnStateChanged -= OnStateChanged;
         }
 
         // ── Public API ────────────────────────────────────────────────────────────
@@ -62,8 +68,8 @@ namespace LorQB.Core
         /// </summary>
         public void StartRound()
         {
-            if (GameStateManager.Instance != null)
-                GameStateManager.Instance.SetState(GameStateManager.GameState.BALL_PLACEMENT);
+            if (_gsm != null)
+                _gsm.SetState(GameStateManager.GameState.BALL_PLACEMENT);
             else
                 Debug.LogWarning("[GameManager] GameStateManager.Instance is null in StartRound.");
         }
