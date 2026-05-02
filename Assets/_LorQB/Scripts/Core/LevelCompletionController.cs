@@ -23,24 +23,9 @@ namespace LorQB.Core
             _gameStateManager = gameStateManager;
         }
 
-        /// <summary>
-        /// Checks whether the current round is complete and, if so, transitions to
-        /// <see cref="GameStateManager.GameState.ROUND_COMPLETE"/>.
-        /// Call this from POST_TRANSFER after each successful ball transfer.
-        /// </summary>
         public void CheckCompletion()
         {
-            if (_sequenceManager == null || _gameStateManager == null)
-            {
-                Debug.LogWarning("[LevelCompletionController] CheckCompletion called before Initialise.");
-                return;
-            }
-
-            if (_sequenceManager.GetCurrentIndex() == 3)
-            {
-                Debug.Log("[LevelCompletionController] Round complete — transitioning to ROUND_COMPLETE.");
-                _gameStateManager.SetState(GameStateManager.GameState.ROUND_COMPLETE);
-            }
+            Debug.Log("[LevelCompletionController] Disabled — completion handled by BallTransferController.");
         }
     }
 }
