@@ -112,47 +112,56 @@ namespace LorQB.Movement
         /// <returns>True if the transfer was performed; false otherwise.</returns>
         public bool TryTransfer(CubeColor from, CubeColor to)
         {
+            Debug.Log($"[Transfer Attempt] {from} → {to}");
+
             GameStateManager gsm = GameStateManager.Instance;
 
             if (gsm == null)
             {
                 Debug.LogWarning("[BallTransferController] TryTransfer: GameStateManager.Instance is null.");
+                Debug.LogWarning("[Transfer Invalid]");
                 return false;
             }
 
             if (gsm.GetState() != GameStateManager.GameState.VALIDATION)
             {
                 Debug.LogWarning($"[BallTransferController] TryTransfer: GameState is {gsm.GetState()}, expected VALIDATION.");
+                Debug.LogWarning("[Transfer Invalid]");
                 return false;
             }
 
             if (_sequenceManager == null)
             {
                 Debug.LogWarning("[BallTransferController] TryTransfer: _sequenceManager is null.");
+                Debug.LogWarning("[Transfer Invalid]");
                 return false;
             }
 
             if (!_sequenceManager.HasNextColor())
             {
                 Debug.LogWarning("[BallTransferController] TryTransfer: no next color in sequence.");
+                Debug.LogWarning("[Transfer Invalid]");
                 return false;
             }
 
             if (from != _sequenceManager.GetCurrentColor())
             {
                 Debug.LogWarning($"[BallTransferController] TryTransfer: 'from' color {from} does not match current sequence color {_sequenceManager.GetCurrentColor()}.");
+                Debug.LogWarning("[Transfer Invalid]");
                 return false;
             }
 
             if (to != _sequenceManager.GetNextColor())
             {
                 Debug.LogWarning($"[BallTransferController] TryTransfer: 'to' color {to} does not match next sequence color {_sequenceManager.GetNextColor()}.");
+                Debug.LogWarning("[Transfer Invalid]");
                 return false;
             }
 
             if (!_seatMap.ContainsKey(to))
             {
                 Debug.LogWarning($"[BallTransferController] TryTransfer: _seatMap does not contain an entry for target color {to}.");
+                Debug.LogWarning("[Transfer Invalid]");
                 return false;
             }
 
@@ -168,10 +177,12 @@ namespace LorQB.Movement
 
             if (!_sequenceManager.HasNextColor())
             {
+                Debug.Log("[ROUND COMPLETE TRIGGERED]");
                 OnLevelComplete?.Invoke();
                 gsm.SetState(GameStateManager.GameState.ROUND_COMPLETE);
             }
 
+            Debug.Log("[Transfer Success]");
             return true;
         }
 
