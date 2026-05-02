@@ -96,6 +96,14 @@ namespace LorQB.Core
         }
 
         /// <summary>
+        /// Returns the current sequence index (0–3).
+        /// </summary>
+        public int GetCurrentIndex()
+        {
+            return sequenceIndex;
+        }
+
+        /// <summary>
         /// Resets sequenceIndex to 0 without regenerating the sequence.
         /// </summary>
         public void ResetSequence()
