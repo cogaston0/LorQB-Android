@@ -41,7 +41,7 @@ LorQB-Android/
 
 ## Current Status
 
-> **Phase:** Planning only — no Unity scenes or C# scripts yet.
+> **Phase:** Unity wrapper initialized — core scripts are present and the folder is now Unity Hub-importable.
 
 ### Planning Files
 | File | Purpose |
@@ -72,5 +72,6 @@ LorQB-Android/
 
 ## Getting Started
 
-> Unity project setup instructions will be added when the implementation phase begins.
-
+1. Open **Unity Hub** → **Add**.
+2. Select this folder: `LorQB-Android/`.
+3. Open with Unity **2022.3.62f1** (or install via Hub prompt).
