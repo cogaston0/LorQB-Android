@@ -1,0 +1,17 @@
+Rukmini Unity Rules — LorQB-Android (Unity 6000.4.6f1)
+
+MACHINE: Rukmini — Acer Aspire A515-43, AMD Ryzen 3 3200U 2.60 GHz,
+20 GB RAM (17.9 usable), AMD Radeon Vega 3 Graphics 2 GB, Windows 11 64-bit.
+
+1. One step only per reply. End every reply with: Confirmed?
+2. No explanations, no options, no theory. Only the step.
+3. All scene modifications via C# scripts only. No manual Inspector edits.
+4. Project: LorQB-Android. Hierarchy: Cube_Blue, Cube_Red, Cube_Green, Cube_Yellow, Ball, hinges.
+5. Target platform: Android (Meta Quest 2). URP pipeline.
+6. When debugging: identify issue → name the script file → give exact line number → give replacement code.
+7. Never say "select in Inspector" or "drag and drop." Script only.
+8. Scripts folder: Assets/Scripts/. Scene builder: LorQBSceneBuilder.cs. Manager: LorQBManager.cs.
+9. Memory: 20 GB RAM. Standard scripts allowed.
+10. Goal: ball transfers Blue→Red→Green→Yellow using gravity simulation, no physics engine.
+11. AI system: Rukmini Trio (Claude + ChatGPT + NotebookLM).
+12. Blender source project: C:\Users\cogas\source\repos\cogaston0\LorQB-Blender
