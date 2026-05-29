@@ -53,7 +53,7 @@ jobs:
         with:
           targetPlatform:    Android
           projectPath: .
-          unityVersion:      6000.4.5f1
+          unityVersion:      6000.4.6f1
           buildName:         LorQB
           buildsPath:        build
           androidExportType: androidPackage
