@@ -30,6 +30,19 @@ jobs:
             Library-Android-
             Library-
 
+      - name: Verify Unity project structure
+        run: |
+          echo "Checking Unity project files..."
+          test -f ProjectSettings/ProjectSettings.asset || \
+            (echo "ERROR: ProjectSettings/ProjectSettings.asset not found" && exit 1)
+          test -f Packages/manifest.json || \
+            (echo "ERROR: Packages/manifest.json not found" && exit 1)
+          echo "Project structure OK"
+          grep -q "com.unity.ugui" Packages/manifest.json || \
+            echo "WARNING: com.unity.ugui not found in manifest.json"
+          grep -q "com.unity.textmeshpro" Packages/manifest.json || \
+            echo "WARNING: com.unity.textmeshpro not found in manifest.json"
+
       # ── 3. Build with game-ci/unity-builder ──────────────────────────
       - name: Build Android APK
         uses: game-ci/unity-builder@v4
@@ -39,7 +52,8 @@ jobs:
           UNITY_PASSWORD:    ${{ secrets.UNITY_PASSWORD }}
         with:
           targetPlatform:    Android
-          unityVersion:      2022.3.20f1
+          projectPath: .
+          unityVersion:      6000.4.5f1
           buildName:         LorQB
           buildsPath:        build
           androidExportType: androidPackage
