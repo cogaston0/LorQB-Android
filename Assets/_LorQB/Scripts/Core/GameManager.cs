@@ -17,7 +17,7 @@ namespace LorQB.Core
     [RequireComponent(typeof(RotationController))]
     public class GameManager : MonoBehaviour
     {
-        // ── Fields ────────────────────────────────────────────────────────────────
+        // ── Fields ─────────────────────────────────────────────────────────
         private SequenceManager        sequenceManager;
         private BallTransferController ballTransfer;
         private ValidationController   validation;
@@ -62,7 +62,7 @@ namespace LorQB.Core
                 _gsm.OnStateChanged -= OnStateChanged;
         }
 
-        // ── Public API ────────────────────────────────────────────────────────────
+        // ── Public API ─────────────────────────────────────────────────────────
         /// <summary>
         /// Begins a round by transitioning to BALL_PLACEMENT.
         /// Call after the player has selected the starting cube.
@@ -86,16 +86,13 @@ namespace LorQB.Core
             UnityEngine.SceneManagement.SceneManager.LoadScene(0);
         }
 
-        public void OnCubeSelected(string cubeName) { }
+        public event System.Action<string> OnCubeSelected;
 
-        public void OnCubeDeselected(string cubeName) { }
+        public event System.Action<string> OnCubeDeselected;
 
-        public bool IsInputAllowed()
-        {
-            return true;
-        }
+        public bool IsInputAllowed => true;
 
-        // ── Logging ───────────────────────────────────────────────────────────────
+        // ── Logging ─────────────────────────────────────────────────────────
         private void OnStateChanged(GameStateManager.GameState newState)
         {
             Debug.Log($"[GameManager] State changed → {newState}");
