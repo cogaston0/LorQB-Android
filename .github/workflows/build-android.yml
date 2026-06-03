@@ -54,7 +54,6 @@ jobs:
           targetPlatform:    Android
           projectPath: .
           unityVersion:      6000.4.5f1
-          scenes: Assets/Scenes/SampleScene.unity
           buildName:         LorQB
           buildsPath:        build
           androidExportType: androidPackage
