@@ -70,3 +70,5 @@ jobs:
           name: LorQB-Android-APK
           path: build/Android/*.apk
           retention-days: 14
+
+# rebuild trigger
