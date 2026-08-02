@@ -243,11 +243,11 @@ namespace LorQB
             }
             cam.clearFlags      = CameraClearFlags.SolidColor;
             cam.backgroundColor = new Color(0.04f, 0.06f, 0.12f);
-            cam.fieldOfView     = 48f;
+            cam.fieldOfView     = 68f;
 
-            // Angled 3D view — matches Blender reference (above, left-of-centre)
-            cam.transform.position = new Vector3(-2.0f, 4.5f, -9.0f);
-            cam.transform.LookAt(new Vector3(0f, 0f, 0f));
+            // Angled 3D view — fills frame matching Blender reference viewport
+            cam.transform.position = new Vector3(-1.7f, 2.1f, -3.7f);
+            cam.transform.LookAt(new Vector3(0.1f, -0.1f, 0f));
         }
 
         // ── Canvas / HUD ──────────────────────────────────────────────────────
@@ -262,12 +262,12 @@ namespace LorQB
         {
             var mat = new Material(Shader.Find("Standard"));
             SetTransparent(mat);
-            // 28% opacity — glass look matching Blender reference
-            mat.color = new Color(color.r, color.g, color.b, 0.28f);
-            mat.SetFloat("_Glossiness", 0.96f);
+            // 42% opacity — richer glass matching Blender Alpha=0.35 + Transmission=0.5
+            mat.color = new Color(color.r, color.g, color.b, 0.42f);
+            mat.SetFloat("_Glossiness", 0.97f);   // Blender roughness=0.1 → very glossy
             mat.SetFloat("_Metallic",   0.0f);
-            // Subtle inner emission so faces read even at low alpha
-            mat.SetColor("_EmissionColor", color * 0.08f);
+            // Inner emission for face visibility depth — matches Blender glow
+            mat.SetColor("_EmissionColor", color * 0.18f);
             mat.EnableKeyword("_EMISSION");
             return mat;
         }

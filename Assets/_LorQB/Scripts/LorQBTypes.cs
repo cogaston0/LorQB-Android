@@ -87,10 +87,10 @@ namespace LorQB
         // ── Colors ───────────────────────────────────────────────────────────
         public static readonly Color[] CubeColors =
         {
-            new(0.20f, 0.50f, 1.00f, 0.22f),   // Blue
-            new(1.00f, 0.22f, 0.22f, 0.22f),   // Red
-            new(0.20f, 0.90f, 0.22f, 0.22f),   // Green
-            new(1.00f, 0.82f, 0.00f, 0.22f),   // Yellow
+            new(0.10f, 0.38f, 1.00f, 0.42f),   // Blue   — saturated like Blender glass
+            new(1.00f, 0.10f, 0.10f, 0.42f),   // Red
+            new(0.10f, 0.88f, 0.12f, 0.42f),   // Green
+            new(1.00f, 0.88f, 0.00f, 0.42f),   // Yellow
         };
 
         public static readonly Color[] EmissiveColors =
